@@ -1,0 +1,5 @@
+<div class="content-page config-page"><div class="page-intro"><span class="eyebrow">MODEL SETTINGS</span><h1>Decision config</h1><p>Edit the questions and criteria sent to Laya. Every response keeps a snapshot of the config used.</p></div>
+  <div class="editor-toolbar"><div><strong>laya-config.json</strong><span>JSON</span></div><div class="editor-actions"><button class="secondary-button" (click)="reset()">Reset to default</button><button class="primary-button" [disabled]="saving()" (click)="save()">{{ saving() ? 'Saving…' : 'Save config' }}</button></div></div>
+  <textarea class="json-editor" aria-label="Decision config JSON" spellcheck="false" [(ngModel)]="editor" (input)="status.set('')"></textarea>
+  <div class="editor-status">@if (error()) { <span class="inline-error">{{ error() }}</span> } @else if (status()) { <span class="success-message">{{ status() }}</span> } @else { <span>Changes take effect after saving.</span> }</div>
+</div>

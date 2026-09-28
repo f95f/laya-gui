@@ -1,0 +1,20 @@
+{
+  "name": "Debt negotiation intent",
+  "questions": {
+    "decision": {
+      "type": "choice",
+      "instructions": "Classify the user's primary intent in a debt negotiation. Choose the single best match based on the whole message.",
+      "criteria": {
+        "CONFIRM_NEGOTIATION": "Accepts or confirms the proposed payment arrangement.",
+        "REQUEST_DISCOUNT": "Says the proposed amount is too high or asks to reduce it.",
+        "REQUEST_DATE": "Says the payment date is too soon or asks for more time to pay.",
+        "REQUEST_REPEAT": "Did not understand the offer or asks to hear it again.",
+        "TALK_WITH_HUMAN": "Asks to speak with a human agent or be transferred from the AI.",
+        "DENY_DEBT": "Denies owing the debt or disputes the amount owed.",
+        "ALREADY_PAID": "States that the debt or requested payment has already been paid.",
+        "OUT_OF_CONTEXT": "Coherent message unrelated to the debt or payment negotiation.",
+        "UNINTELLIGIBLE": "Unreadable or incoherent message with no discernible intent."
+      }
+    }
+  }
+}

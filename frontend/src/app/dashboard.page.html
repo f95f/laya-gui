@@ -1,0 +1,13 @@
+<div class="content-page dashboard-page"><div class="page-intro"><span class="eyebrow">LOCAL ACTIVITY</span><h1>Dashboard</h1><p>Decision volume and performance from saved requests.</p></div>
+  @if (error()) { <div class="inline-error">{{ error() }}</div> }
+  @if (data(); as dashboard) {
+    <div class="stats-grid"><div class="stat"><label>Total requests</label><strong>{{ dashboard.stats.total_requests }}</strong><small>{{ dashboard.stats.failed_requests }} failed</small></div><div class="stat"><label>Average latency</label><strong>{{ dashboard.stats.average_latency_ms === null ? '—' : (dashboard.stats.average_latency_ms | number:'1.0-0') + ' ms' }}</strong><small>Including cold starts</small></div><div class="stat"><label>Average confidence</label><strong>{{ percent(dashboard.stats.average_confidence) }}</strong><small>Model confidence</small></div><div class="stat"><label>Tokens used</label><strong>{{ (dashboard.stats.input_tokens || 0) + (dashboard.stats.output_tokens || 0) }}</strong><small>{{ dashboard.stats.input_tokens || 0 }} in · {{ dashboard.stats.output_tokens || 0 }} out</small></div></div>
+    <section class="distribution"><div class="section-heading"><h2>Choice distribution</h2><span>Successful requests</span></div>
+      @for (choice of dashboard.choices; track choice.choice) { <div class="distribution-row"><span>{{ choice.choice }}</span><div class="distribution-track"><div [style.width.%]="share(choice.count, dashboard.stats.total_requests - dashboard.stats.failed_requests)"></div></div><strong>{{ choice.count }}</strong></div> }
+      @if (!dashboard.choices.length) { <p class="empty-section">No decisions yet. Send a message to see results here.</p> }
+    </section>
+    <section class="recent"><div class="section-heading"><h2>Recent requests</h2><button class="text-button" (click)="refresh()">Refresh</button></div><div class="table-wrap"><table><thead><tr><th>Message</th><th>Choice</th><th>Probability</th><th>Latency</th><th>Time</th></tr></thead><tbody>
+      @for (item of dashboard.recent; track item.timestamp) { <tr><td><a [routerLink]="['/chat', item.conversationId]">{{ item.message }}</a></td><td><span class="table-choice" [class.failed]="item.status !== 'ok'">{{ item.choice || 'Failed' }}</span></td><td>{{ percent(item.probability) }}</td><td>{{ item.latencyMs | number:'1.0-0' }} ms</td><td>{{ item.timestamp | date:'short' }}</td></tr> }
+    </tbody></table>@if (!dashboard.recent.length) { <p class="empty-section">No requests stored yet.</p> }</div></section>
+  }
+</div>

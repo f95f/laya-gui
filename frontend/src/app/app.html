@@ -1,0 +1,12 @@
+<div class="workspace">
+  <aside class="sidebar" [class.open]="sidebarOpen()">
+    <div class="sidebar-head"><a class="brand" routerLink="/chat" (click)="sidebarOpen.set(false)"><span class="brand-mark">L</span><span>Laya<span class="brand-muted"> / Decisions</span></span></a><button class="icon-button close-mobile" title="Close sidebar" aria-label="Close sidebar" (click)="sidebarOpen.set(false)"><lucide-icon name="x" [size]="18" /></button></div>
+    <a class="new-chat" routerLink="/chat" (click)="sidebarOpen.set(false)"><lucide-icon name="plus" [size]="16" /> New chat</a>
+    <nav class="primary-nav"><a routerLink="/dashboard" routerLinkActive="active" (click)="sidebarOpen.set(false)"><lucide-icon name="layout-dashboard" [size]="16" /> Dashboard</a><a routerLink="/config" routerLinkActive="active" (click)="sidebarOpen.set(false)"><lucide-icon name="settings-2" [size]="16" /> Config</a></nav>
+    <div class="history-heading">History <span>{{ conversations().length }}</span></div>
+    <div class="history-list">@for (conversation of conversations(); track conversation.id) { <a [routerLink]="['/chat', conversation.id]" routerLinkActive="active" (click)="sidebarOpen.set(false)" [title]="conversation.title"><span class="history-dot"></span><span class="history-title">{{ conversation.title }}</span></a> } @empty { <p class="empty-history">Your conversations will appear here.</p> }</div>
+    <div class="sidebar-foot"><span class="status-dot"></span> Local workspace <span class="version">Laya 0.3</span></div>
+  </aside>
+  @if (sidebarOpen()) { <button class="sidebar-backdrop" aria-label="Close sidebar" (click)="sidebarOpen.set(false)"></button> }
+  <div class="main-area"><header class="topbar"><button class="icon-button menu-mobile" title="Open sidebar" aria-label="Open sidebar" (click)="sidebarOpen.set(true)"><lucide-icon name="menu" [size]="18" /></button><div class="topbar-title">{{ pageTitle() }}</div><span class="topbar-spacer"></span><span class="local-badge"><span class="status-dot"></span> Local model</span></header><router-outlet /></div>
+</div>
