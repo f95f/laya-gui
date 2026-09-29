@@ -1,5 +1,36 @@
-<div class="content-page config-page"><div class="page-intro"><span class="eyebrow">MODEL SETTINGS</span><h1>Decision config</h1><p>Edit the questions and criteria sent to Laya. Every response keeps a snapshot of the config used.</p></div>
-  <div class="editor-toolbar"><div><strong>laya-config.json</strong><span>JSON</span></div><div class="editor-actions"><button class="secondary-button" (click)="reset()">Reset to default</button><button class="primary-button" [disabled]="saving()" (click)="save()">{{ saving() ? 'Saving…' : 'Save config' }}</button></div></div>
+<div class="content-page config-page">
+  <div class="page-intro config-intro">
+    <div><span class="eyebrow">MODEL SETTINGS</span><h1>Decision config</h1><p>Current active schema first, with quick access to your config library.</p></div>
+    <div class="intro-actions"><button class="secondary-button" (click)="showLibrary.set(!showLibrary())">{{ showLibrary() ? 'Hide configs' : 'Browse configs' }}</button><button class="primary-button" (click)="newConfig()">New config</button></div>
+  </div>
+
+  @if (activeConfig(); as active) {
+    <section class="active-summary"><div><label>Active config</label><strong>{{ active.name }}</strong><span>{{ modelName(active.defaultModelId) }} / {{ criteriaCount(active) }} criteria</span></div>@if (selectedId() !== active.id) { <button class="secondary-button" (click)="open(active.id)">Open active</button> }</section>
+  }
+
+  @if (showLibrary()) {
+    <section class="config-library">
+      @for (config of configs(); track config.id) {
+        <article class="config-card" [class.active]="config.isActive" [class.selected]="selectedId() === config.id" (click)="open(config.id)">
+          <div class="card-head"><strong>{{ config.name }}</strong>@if (config.isActive) { <span>Active</span> }</div>
+          <p>{{ modelName(config.defaultModelId) }}</p>
+          <small>{{ criteriaCount(config) }} criteria</small>
+          <div class="card-actions" (click)="$event.stopPropagation()">
+            <button class="icon-action" title="Set active" aria-label="Set active" [disabled]="config.isActive" (click)="activate(config.id)">A</button>
+            <button class="icon-action" title="Duplicate" aria-label="Duplicate" (click)="duplicate(config)">D</button>
+            <button class="icon-action danger" title="Delete" aria-label="Delete" [disabled]="config.isActive" (click)="delete(config)">X</button>
+          </div>
+        </article>
+      }
+    </section>
+  }
+
+  <div class="config-fields">
+    <label>Name <input [(ngModel)]="name" /></label>
+    <label>Default model <select [(ngModel)]="defaultModelId">@for (model of models(); track model.id) { <option [value]="model.id">{{ model.name }}</option> }</select></label>
+  </div>
+
+  <div class="editor-toolbar"><div><strong>{{ name || 'Decision config' }}</strong><span>{{ selectedIsActive() ? 'Active' : 'Draft' }}</span></div><div class="editor-actions"><button class="secondary-button" (click)="duplicate()">Duplicate</button><button class="secondary-button" (click)="reset()">Reset to default</button><button class="secondary-button" [disabled]="selectedIsActive()" (click)="activate()">Set active</button><button class="primary-button" [disabled]="saving()" (click)="save()">{{ saving() ? 'Saving...' : 'Save config' }}</button></div></div>
   <textarea class="json-editor" aria-label="Decision config JSON" spellcheck="false" [(ngModel)]="editor" (input)="status.set('')"></textarea>
   <div class="editor-status">@if (error()) { <span class="inline-error">{{ error() }}</span> } @else if (status()) { <span class="success-message">{{ status() }}</span> } @else { <span>Changes take effect after saving.</span> }</div>
 </div>

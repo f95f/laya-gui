@@ -1,31 +1,48 @@
 <div class="chat-page">
   <div class="chat-scroll" #scrollBody>
-    @if (messages().length === 0) { <div class="welcome"><div class="welcome-mark">L</div><h1>Make a decision</h1><p>Send a message to evaluate it with your current Laya config.</p></div> }
-    @else { <div class="thread">
-      @for (item of messages(); track item.id) {
-        @if (item.role === 'user') { <div class="user-row"><div class="user-bubble">{{ item.content }}</div><time>{{ item.timestamp | date:'shortTime' }}</time></div> }
-        @else if (item.response; as response) { <div class="answer-row"><div class="answer-mark">L</div><div class="answer-body">
-          <div class="answer-heading">Laya <span>Decision</span></div>
-          @if (response.status === 'ok') { <div class="decision-line"><span class="choice">{{ response.choice }}</span><span class="probability">{{ probability(response.probability) }} probability</span></div> }
-          @else { <div class="decision-error">{{ response.error }}</div> }
-          <div class="answer-actions"><time>{{ response.timestamp | date:'medium' }}</time><button class="icon-button copy-button" [title]="copiedId() === item.id ? 'Copied' : 'Copy answer JSON'" [attr.aria-label]="copiedId() === item.id ? 'Copied' : 'Copy answer JSON'" (click)="copy(response, item.id)"><lucide-icon [name]="copiedId() === item.id ? 'check' : 'copy'" [size]="15" /></button></div>
-          <details class="metadata"><summary>Details <lucide-icon name="chevron-down" [size]="13" /></summary><div class="metadata-grid">
-            <div><label>Confidence</label><strong>{{ probability(response.confidence) }}</strong></div>
-            <div><label>Answer confidence</label><strong>{{ probability(response.answerConfidence) }}</strong></div>
-            <div><label>Latency</label><strong>{{ response.latencyMs | number:'1.0-1' }} ms</strong></div>
-            <div><label>Tokens</label><strong>{{ response.inputTokens ?? '—' }} in · {{ response.outputTokens ?? '—' }} out</strong></div>
-            <div><label>Model</label><strong>{{ response.model || '—' }}</strong></div>
-            <div><label>Routing</label><strong>{{ response.routing | json }}</strong></div>
-          </div><div class="probability-list"><label>All probabilities</label>
-            @for (option of entries(response.probabilities); track option.key) { <div class="probability-item"><span>{{ option.key }}</span><div class="bar-track"><div class="bar-fill" [style.width.%]="option.value * 100"></div></div><strong>{{ option.value | percent:'1.1-1' }}</strong></div> }
-          </div><div class="raw-details"><label>Raw result</label><pre>{{ response.raw | json }}</pre></div></details>
-        </div></div> }
-      }
-      @if (busy()) { <div class="pending"><span class="answer-mark">L</span><span class="pulse">Evaluating message…</span></div> }
-    </div> }
+    @if (messages().length === 0) {
+      <div class="welcome"><div class="welcome-mark">L</div><h1>Make a decision</h1><p>Send a message to evaluate it with the selected config and model.</p></div>
+    }
+    @else {
+      <div class="thread">
+        @for (item of messages(); track item.id) {
+          @if (item.role === 'user') {
+            <div class="user-row"><div class="user-bubble">{{ item.content }}</div><time>{{ item.timestamp | date:'shortTime' }}</time></div>
+          }
+          @else if (item.response; as response) {
+            <div class="answer-row"><div class="answer-mark">L</div><div class="answer-body">
+              <div class="answer-heading">{{ response.provider || 'laya' }} <span>{{ response.configName || 'Decision' }}</span></div>
+              @if (response.status === 'ok') {
+                <div class="decision-line"><span class="choice">{{ response.choice }}</span><span class="probability">{{ probability(response.probability) }} probability</span></div>
+              }
+              @else { <div class="decision-error">{{ response.error }}</div> }
+              <div class="answer-actions"><time>{{ response.timestamp | date:'medium' }}</time><button class="icon-button copy-button" [title]="copiedId() === item.id ? 'Copied' : 'Copy answer JSON'" [attr.aria-label]="copiedId() === item.id ? 'Copied' : 'Copy answer JSON'" (click)="copy(response, item.id)"><lucide-icon [name]="copiedId() === item.id ? 'check' : 'copy'" [size]="15" /></button></div>
+              <details class="metadata"><summary>Details <lucide-icon name="chevron-down" [size]="13" /></summary><div class="metadata-grid">
+                <div><label>Confidence</label><strong>{{ probability(response.confidence) }}</strong></div>
+                <div><label>Answer confidence</label><strong>{{ probability(response.answerConfidence) }}</strong></div>
+                <div><label>Latency</label><strong>{{ response.latencyMs | number:'1.0-1' }} ms</strong></div>
+                <div><label>Tokens</label><strong>{{ response.inputTokens ?? '-' }} in / {{ response.outputTokens ?? '-' }} out</strong></div>
+                <div><label>Model</label><strong>{{ response.model || response.modelId || '-' }}</strong></div>
+                <div><label>Provider</label><strong>{{ response.provider || '-' }}</strong></div>
+                <div><label>Config</label><strong>{{ response.configName || response.configId || '-' }}</strong></div>
+                <div><label>Routing</label><strong>{{ response.routing | json }}</strong></div>
+              </div><div class="probability-list"><label>All probabilities</label>
+                @for (option of entries(response.probabilities); track option.key) { <div class="probability-item"><span>{{ option.key }}</span><div class="bar-track"><div class="bar-fill" [style.width.%]="option.value * 100"></div></div><strong>{{ option.value | percent:'1.1-1' }}</strong></div> }
+              </div><div class="raw-details"><label>Raw result</label><pre>{{ response.raw | json }}</pre></div></details>
+            </div></div>
+          }
+        }
+        @if (busy()) { <div class="pending"><span class="answer-mark">L</span><span class="pulse">Evaluating message...</span></div> }
+      </div>
+    }
   </div>
-  <div class="composer-area">@if (error()) { <div class="inline-error">{{ error() }}</div> }
-    <div class="composer"><textarea aria-label="Message" [(ngModel)]="draft" (keydown)="onKeydown($event)" placeholder="Message Laya" rows="2"></textarea><div class="composer-bottom"><span>Decision · current config</span><button class="send-button" title="Send message" aria-label="Send message" [disabled]="!draft.trim() || busy()" (click)="send()"><lucide-icon name="arrow-up" [size]="18" /></button></div></div>
+  <div class="composer-area">
+    @if (error()) { <div class="inline-error">{{ error() }}</div> }
+    <div class="composer-controls">
+      <label>Config <select [ngModel]="selectedConfigId()" (ngModelChange)="selectedConfigId.set($event); configChanged()">@for (config of configs(); track config.id) { <option [value]="config.id">{{ config.name }}{{ config.isActive ? ' (active)' : '' }}</option> }</select></label>
+      <label>Model <select [ngModel]="selectedModelId()" (ngModelChange)="selectedModelId.set($event)">@for (model of models(); track model.id) { <option [value]="model.id">{{ model.name }}</option> }</select></label>
+    </div>
+    <div class="composer"><textarea aria-label="Message" [(ngModel)]="draft" (keydown)="onKeydown($event)" placeholder="Message decision model" rows="2"></textarea><div class="composer-bottom"><span>Decision / selected config and model</span><button class="send-button" title="Send message" aria-label="Send message" [disabled]="!draft.trim() || busy()" (click)="send()"><lucide-icon name="arrow-up" [size]="18" /></button></div></div>
     <p class="composer-note">Results are estimates. Review important decisions before acting.</p>
   </div>
 </div>
