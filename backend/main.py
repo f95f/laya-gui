@@ -23,7 +23,7 @@ DB_PATH = ROOT / "data" / "laya_history.db"
 DEFAULT_CONFIG = json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
 DEFAULT_MODEL_ID = "laya:english"
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/")
-DEFAULT_OLLAMA_MODELS = "granite4.2:3b,qwen3.5:0.8b,qwen3.5:4b"
+DEFAULT_OLLAMA_MODELS = "granite4.2:3b,qwen3.5:0.8b,qwen3.5:4b,ministral-3,ministral-3:3b,qwen2.5:3b,qwen3:4b"
 OLLAMA_MODEL_IDS = [
     item.strip() for item in os.getenv("OLLAMA_MODEL_IDS", DEFAULT_OLLAMA_MODELS).split(",") if item.strip()
 ]
